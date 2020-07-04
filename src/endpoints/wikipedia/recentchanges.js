@@ -1,6 +1,8 @@
 const QUERY =
   "https://en.wikipedia.org/w/api.php?action=query&list=recentchanges&rcprop=title|sizes|flags|timestamp&rctype=edit&rclimit=500&origin=*&format=json";
 
+const fetchInterval = 10 * 60 * 1000;
+
 const fetchData = () =>
   fetch(QUERY)
     .then((response) => response.json())
@@ -19,4 +21,4 @@ const fetchData = () =>
         .filter((change) => change.value > 0)
     );
 
-export { fetchData };
+export { fetchData, fetchInterval };
