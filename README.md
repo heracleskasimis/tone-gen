@@ -1,2 +1,3 @@
 # tone-gen
-Data to tone generator
+
+Tone.js application that generates tones based on data streams.
