@@ -71,6 +71,11 @@ const initEngine = (Tone) => {
 
   const play = () => {
     clearTimeout(playbackTimeout);
+    if (dataPoints.length === 0) {
+      playbackTimeout = setTimeout(play, MIN_NOTE_DURATION);
+      return;
+    }
+
     const minValue = dataPoints.reduce(
       (acc, p) => Math.min(acc, p.value),
       Infinity
@@ -135,7 +140,7 @@ const initEngine = (Tone) => {
     synth.releaseAll();
     clearTimeout(playbackTimeout);
   };
-  const onLoadData = (data) => {
+  const onLoadData = (data = []) => {
     dataPoints = [...data].sort((a, b) => a.start - b.start);
     onReset();
   };
@@ -180,10 +185,10 @@ const initAudio = () => {
         onScaleChange(detail)
       );
 
+      AUDIO_OUT.waveform = waveform;
+
       document.dispatchEvent(new Event(EVENT_AUDIO_LOADED));
       document.dispatchEvent(new Event(EVENT_AUDIO_UP));
-
-      AUDIO_OUT.waveform = waveform;
     })
     .catch((err) => {
       document.dispatchEvent(new Event(EVENT_AUDIO_DOWN));

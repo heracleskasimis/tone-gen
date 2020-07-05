@@ -1,3 +1,4 @@
+import endpoints from "./endpoints";
 import { SCALES, TONICS } from "./music";
 import { AUDIO_OUT } from "./audio";
 import {
@@ -14,10 +15,41 @@ import {
   EVENT_MESSAGE,
   EVENT_TONIC_CHANGE,
   EVENT_SCALE_CHANGE,
+  EVENT_ENDPOINT_CHANGE,
 } from "./events";
 
 const MAX_PLAYLIST_COUNT = 10;
 const FILL_COLOUR = "#00dddd";
+
+const createEndpointSelector = () => {
+  const endpointSelector = document.createElement("select");
+  endpointSelector.classList.add("selector");
+  endpointSelector.classList.add("endpoint-selector");
+  endpointSelector.id = "endpoint_selector";
+  Object.keys(endpoints).forEach((endpoint) => {
+    const option = document.createElement("option");
+    option.value = endpoint;
+    option.textContent = endpoint;
+    if (localStorage.getItem("endpoint") === endpoint) {
+      option.selected = true;
+    }
+    endpointSelector.appendChild(option);
+  });
+  endpointSelector.addEventListener("change", (event) => {
+    document.dispatchEvent(
+      new CustomEvent(EVENT_ENDPOINT_CHANGE, { detail: event.target.value })
+    );
+    localStorage.setItem("endpoint", event.target.value);
+  });
+  const endpointSelectorContainer = document.createElement("div");
+  endpointSelectorContainer.classList.add("endpoint-selector-container");
+  const endpointSelectorLabel = document.createElement("label");
+  endpointSelectorLabel.textContent = "Source:";
+  endpointSelectorLabel.htmlFor = "endpoint_selector";
+  endpointSelectorContainer.appendChild(endpointSelectorLabel);
+  endpointSelectorContainer.appendChild(endpointSelector);
+  return Promise.resolve(endpointSelectorContainer);
+};
 
 const createTonicSelector = () => {
   const tonicSelector = document.createElement("select");
@@ -144,6 +176,10 @@ const createMessage = () => {
     message.classList.add("visible");
     message.textContent = detail;
   });
+  message.addEventListener("click", () => {
+    message.classList.remove("visible");
+    message.textContent = undefined;
+  });
   return Promise.resolve(message);
 };
 
@@ -206,12 +242,13 @@ const createVisualizer = () => {
 const createElements = () =>
   Promise.all([
     createVisualizer(),
+    createEndpointSelector(),
     createTonicSelector(),
     createScaleSelector(),
     createPlayButton(),
     createResetButton(),
-    createLoader(),
     createMessage(),
+    createLoader(),
     createPlaylist(),
   ]);
 
