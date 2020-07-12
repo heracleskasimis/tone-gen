@@ -36,7 +36,7 @@ const createSynth = ({ PolySynth, Synth }) =>
     },
   });
 
-const createReverb = ({ Freeverb }) => new Freeverb(0.8, 9000);
+const createReverb = ({ Freeverb }) => new Freeverb(0.95, 6000);
 
 const createVolume = ({ Volume }) => new Volume(-10);
 

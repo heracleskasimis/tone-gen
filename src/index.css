@@ -68,6 +68,7 @@ label {
   line-height: 2rem;
   border: none;
   background-color: transparent;
+  padding: 0;
 }
 
 .tonic-selector, .scale-selector, .btn-audio, .btn-reset {
