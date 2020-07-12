@@ -11,11 +11,10 @@ import {
   EVENT_DATA_LOADED,
   EVENT_TONIC_CHANGE,
   EVENT_SCALE_CHANGE,
+  EVENT_SPEED_CHANGE,
 } from "./events";
 
-const SCORE_DURATION_PER_POINT = 0.5;
-const MIN_NOTE_DURATION = 2;
-const MAX_NOTE_DURATION = 4;
+const DEFAULT_NOTE_DURATION = 2;
 
 const AUDIO_OUT = {
   waveform: undefined,
@@ -23,16 +22,16 @@ const AUDIO_OUT = {
 
 const importTone = () => import(/* webpackChunkName: "tone" */ "tone");
 
-const createSynth = ({ PolySynth, Synth }) =>
+const createSynth = ({ PolySynth, Synth }, noteDuration) =>
   new PolySynth(64, Synth, {
     oscillator: {
       type: "triangle",
     },
     envelope: {
-      attack: MIN_NOTE_DURATION * 0.75,
-      decay: MAX_NOTE_DURATION * 0.75,
+      attack: noteDuration * 0.75,
+      decay: noteDuration * 1.5,
       sustain: 0.05,
-      release: MIN_NOTE_DURATION,
+      release: noteDuration,
     },
   });
 
@@ -53,6 +52,8 @@ const initEngine = (Tone) => {
   let dataPoints = [];
   let playbackIndex = 0;
   let playbackTimeout = undefined;
+  let noteDuration =
+    DEFAULT_NOTE_DURATION / (localStorage.getItem("speed") || 1);
 
   const waveform = new Waveform(16 * 256);
   const reverb = createReverb(Tone);
@@ -67,12 +68,12 @@ const initEngine = (Tone) => {
     volume,
     Master
   );
-  const synth = createSynth(Tone).connect(channel);
+  let synth = createSynth(Tone, noteDuration).connect(channel);
 
   const play = () => {
     clearTimeout(playbackTimeout);
     if (dataPoints.length === 0) {
-      playbackTimeout = setTimeout(play, MIN_NOTE_DURATION);
+      playbackTimeout = setTimeout(play, noteDuration);
       return;
     }
 
@@ -102,13 +103,13 @@ const initEngine = (Tone) => {
       (acc, p) => Math.max(acc, p.end),
       -Infinity
     );
-    const scoreDuration = SCORE_DURATION_PER_POINT * dataPoints.length;
+    const scoreDuration = (noteDuration * dataPoints.length) / 4;
     const tick = scoreDuration / (maxTimestamp - minTimestamp);
 
     const duration = (point.end - point.start) * tick;
     synth.triggerAttackRelease(
       pitch,
-      Math.max(Math.min(duration, MAX_NOTE_DURATION), MIN_NOTE_DURATION)
+      Math.max(Math.min(duration, noteDuration), noteDuration * 2)
     );
     document.dispatchEvent(
       new CustomEvent(EVENT_PLAYBACK, {
@@ -147,6 +148,13 @@ const initEngine = (Tone) => {
   const onReset = () => {
     playbackIndex = 0;
   };
+  const onSpeedChange = (speed) => {
+    const currentSynth = synth;
+    currentSynth.releaseAll();
+    setTimeout(() => currentSynth.dispose(), noteDuration * 2000);
+    noteDuration = DEFAULT_NOTE_DURATION / speed;
+    synth = createSynth(Tone, noteDuration).connect(channel);
+  };
 
   return Promise.resolve({
     waveform,
@@ -156,6 +164,7 @@ const initEngine = (Tone) => {
     onLoadData,
     onTonicChange,
     onScaleChange,
+    onSpeedChange,
   });
 };
 
@@ -171,6 +180,7 @@ const initAudio = () => {
         onLoadData,
         onTonicChange,
         onScaleChange,
+        onSpeedChange,
       } = events;
       document.addEventListener(EVENT_PLAY, onPlay);
       document.addEventListener(EVENT_PAUSE, onPause);
@@ -183,6 +193,9 @@ const initAudio = () => {
       );
       document.addEventListener(EVENT_SCALE_CHANGE, ({ detail }) =>
         onScaleChange(detail)
+      );
+      document.addEventListener(EVENT_SPEED_CHANGE, ({ detail }) =>
+        onSpeedChange(detail)
       );
 
       AUDIO_OUT.waveform = waveform;

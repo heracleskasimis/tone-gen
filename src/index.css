@@ -58,7 +58,7 @@ label {
   max-height: 100vh;
 }
 
-.endpoint-selector, .tonic-selector, .scale-selector, .btn-audio, .btn-reset {
+.endpoint-selector, .tonic-selector, .scale-selector, .speed-selector, .btn-audio, .btn-reset {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -71,18 +71,18 @@ label {
   padding: 0;
 }
 
-.tonic-selector, .scale-selector, .btn-audio, .btn-reset {
+.tonic-selector, .scale-selector, .speed-selector, .btn-audio, .btn-reset {
   position: absolute;
   bottom: 2rem;
 }
 
-.tonic-selector, .scale-selector {
+.tonic-selector, .scale-selector, .speed-selector {
   font-size: 1.5rem;
   text-align: right;
   text-align-last: right;
 }
 
-.tonic-selector option, .scale-selector option {
+.tonic-selector option, .scale-selector option, .speed-selector option {
   color: #000;
   font-size: 1rem;
 }
@@ -94,6 +94,11 @@ label {
 
 .scale-selector {
   right: 4rem;
+}
+
+.speed-selector {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 button {

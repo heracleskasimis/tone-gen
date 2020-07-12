@@ -16,6 +16,7 @@ import {
   EVENT_TONIC_CHANGE,
   EVENT_SCALE_CHANGE,
   EVENT_ENDPOINT_CHANGE,
+  EVENT_SPEED_CHANGE,
 } from "./events";
 
 const MAX_PLAYLIST_COUNT = 10;
@@ -93,6 +94,28 @@ const createScaleSelector = () => {
     localStorage.setItem("scale", event.target.value);
   });
   return Promise.resolve(scaleSelector);
+};
+
+const createSpeedSelector = () => {
+  const speedSelector = document.createElement("select");
+  speedSelector.classList.add("selector");
+  speedSelector.classList.add("speed-selector");
+  [0.25, 0.5, 1, 2, 4, 8, 16].forEach((speed) => {
+    const option = document.createElement("option");
+    option.value = speed;
+    option.textContent = `x${speed}`;
+    if ((localStorage.getItem("speed") || 1) == speed) {
+      option.selected = true;
+    }
+    speedSelector.appendChild(option);
+  });
+  speedSelector.addEventListener("change", (event) => {
+    document.dispatchEvent(
+      new CustomEvent(EVENT_SPEED_CHANGE, { detail: event.target.value })
+    );
+    localStorage.setItem("speed", event.target.value);
+  });
+  return Promise.resolve(speedSelector);
 };
 
 const createPlayButton = () => {
@@ -245,6 +268,7 @@ const createElements = () =>
     createEndpointSelector(),
     createTonicSelector(),
     createScaleSelector(),
+    createSpeedSelector(),
     createPlayButton(),
     createResetButton(),
     createMessage(),

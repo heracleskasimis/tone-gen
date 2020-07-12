@@ -12,6 +12,7 @@ const EVENT_DATA_LOADED = "data-loaded";
 const EVENT_TONIC_CHANGE = "tonic-change";
 const EVENT_SCALE_CHANGE = "scale-change";
 const EVENT_ENDPOINT_CHANGE = "endpoint-change";
+const EVENT_SPEED_CHANGE = "speed-change";
 
 export {
   EVENT_PLAY,
@@ -28,4 +29,5 @@ export {
   EVENT_TONIC_CHANGE,
   EVENT_SCALE_CHANGE,
   EVENT_ENDPOINT_CHANGE,
+  EVENT_SPEED_CHANGE,
 };
