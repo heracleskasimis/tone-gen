@@ -14,7 +14,7 @@ import {
   EVENT_SPEED_CHANGE,
 } from "./events";
 
-const DEFAULT_NOTE_DURATION = 2;
+const DEFAULT_NOTE_DURATION = 4;
 
 const AUDIO_OUT = {
   waveform: undefined,
@@ -35,15 +35,24 @@ const createSynth = ({ PolySynth, Synth }, noteDuration) =>
     },
   });
 
-const createReverb = ({ Freeverb }) => new Freeverb(0.95, 6000);
+const createReverb = ({ JCReverb }) => new JCReverb(0.9);
 
-const createVolume = ({ Volume }) => new Volume(-10);
+const createChannelReverb = ({ JCReverb }) => new JCReverb(0.95);
 
-const createLimiter = ({ Compressor }) => new Compressor(-5, 16);
+const createVolume = ({ Volume }) => new Volume(-40);
 
-const createCompressor = ({ Compressor }) => new Compressor(-15, 8);
+const createLimiter = ({ Compressor }) => new Compressor(-5, 4);
 
-const createChannel = ({ Channel }) => new Channel(-20);
+const createCompressor = ({ MultibandCompressor }) =>
+  new MultibandCompressor({
+    low: { threshold: -20, ratio: 2 },
+    mid: { threshold: -15, ratio: 2 },
+    high: { threshold: -20, ratio: 4 },
+    lowFrequency: 300,
+    highFrequency: 4000,
+  });
+
+const createChannel = ({ Channel }) => new Channel();
 
 const initEngine = (Tone) => {
   const { Waveform, Master } = Tone;
@@ -57,15 +66,17 @@ const initEngine = (Tone) => {
 
   const waveform = new Waveform(16 * 256);
   const reverb = createReverb(Tone);
+  const channelReverb = createChannelReverb(Tone);
   const volume = createVolume(Tone);
   const limiter = createLimiter(Tone);
   const compressor = createCompressor(Tone);
   const channel = createChannel(Tone).chain(
+    volume,
+    reverb,
+    channelReverb,
     compressor,
     limiter,
-    reverb,
     waveform,
-    volume,
     Master
   );
   let synth = createSynth(Tone, noteDuration).connect(channel);

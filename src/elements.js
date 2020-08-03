@@ -100,7 +100,7 @@ const createSpeedSelector = () => {
   const speedSelector = document.createElement("select");
   speedSelector.classList.add("selector");
   speedSelector.classList.add("speed-selector");
-  [0.25, 0.5, 1, 2, 4, 8, 16].forEach((speed) => {
+  [0.5, 1, 2, 4, 8].forEach((speed) => {
     const option = document.createElement("option");
     option.value = speed;
     option.textContent = `x${speed}`;
@@ -161,6 +161,24 @@ const createResetButton = () => {
     resetButton.disabled = playbackIndex === 0;
   });
   return Promise.resolve(resetButton);
+};
+
+const createControlContainer = () => {
+  const container = document.createElement("div");
+  container.classList.add("controls");
+  return Promise.all([
+    createPlayButton(),
+    createResetButton(),
+    createSpeedSelector(),
+    createScaleSelector(),
+    createTonicSelector(),
+  ])
+    .then((elements) =>
+      Object.values(elements).forEach((element) =>
+        container.appendChild(element)
+      )
+    )
+    .then(() => container);
 };
 
 const createLoader = () => {
@@ -266,11 +284,7 @@ const createElements = () =>
   Promise.all([
     createVisualizer(),
     createEndpointSelector(),
-    createTonicSelector(),
-    createScaleSelector(),
-    createSpeedSelector(),
-    createPlayButton(),
-    createResetButton(),
+    createControlContainer(),
     createMessage(),
     createLoader(),
     createPlaylist(),

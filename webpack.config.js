@@ -24,7 +24,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       hash: false,
       filename: "index.html",
-      title: "Intelligencia Art",
+      title: "Tone-Gen",
     }),
   ],
   module: {
