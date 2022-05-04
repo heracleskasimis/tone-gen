@@ -23,7 +23,7 @@ const AUDIO_OUT = {
 const importTone = () => import(/* webpackChunkName: "tone" */ "tone");
 
 const createSynth = ({ PolySynth, Synth }, noteDuration) =>
-  new PolySynth(64, Synth, {
+  new PolySynth(Synth, {
     oscillator: {
       type: "triangle",
     },
